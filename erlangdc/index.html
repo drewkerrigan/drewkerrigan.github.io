@@ -60,8 +60,6 @@
                         
                         <p class="fragment roll-in">"Elixir looks cool, what does distributed elixir look like?"</p>
                     </script>
-
-                    (drewkerrigan.github.io/erlangdc)
                 </section>
 
                 <section data-markdown>
@@ -735,7 +733,64 @@
 
                 <section data-markdown>
                     <script type="text/template">
-                        # Distributed Elixir
+                        ### Mini-Hackathon
+
+                        Your mission, should you choose to accept it
+
+                        <p class="fragment roll-in">multi-player blackjack</p>
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ### Mini-Hackathon: multi-player blackjack
+
+                        Include ex_cards as a dependency
+
+                        mix.exs
+
+                        ```
+                          ...
+                          defp deps do
+                            [{ :ex_cards, github: "drewkerrigan/ex_cards", tag: ">= 0.0.1" }]
+                          end
+                          ...
+                        ```
+
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ### Mini-Hackathon: multi-player blackjack
+
+                        [github.com/drewkerrigan/ex_cards](https://github.com/drewkerrigan/ex_cards)
+
+                        If using the guest wifi, you can force https instead of ssh for git with the following:
+
+                        ```
+                        git config --global url.https://github.com/.insteadOf git://github.com/
+                        ```
+
+                        To undo this change later: 
+
+                        ```
+                        vi ~/.gitconfig
+                        ```
+
+                        Remove these lines:
+
+                        ```
+                        [url "https://github.com/"]
+                              insteadOf = git://github.com/
+                        ```
+
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        # Thanks!
 
                         ### Resources
 
