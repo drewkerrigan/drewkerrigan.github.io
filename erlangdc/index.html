@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>Riak Json</title>
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="reveal">
+
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+                <section data-markdown>
+                    <script type="text/template">
+                        # Distributed Elixir
+
+                        ### Resources
+
+                        * These slides: [drewkerrigan.github.io/erlangdc](http://drewkerrigan.github.io/erlangdc)
+
+                        * Chat Server: [https://github.com/drewkerrigan/ex_messenger](https://github.com/drewkerrigan/ex_messenger)
+
+                        * Client: [https://github.com/drewkerrigan/ex_messenger_client](https://github.com/drewkerrigan/ex_messenger_client)
+
+                        * Blackjack library: [https://github.com/drewkerrigan/ex_cards](https://github.com/drewkerrigan/ex_cards)
+                        </p>
+
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ### Getting Started
+                        #### Collections
+
+                        Collections are a group of documents, they map 1:1 with Riak buckets
+
+                        Choose a name for a collection
+
+                        
+                        ```bash
+                        test
+                        ```
+
+                        All of the Riak Json URIs are based on this collection
+
+                        ```bash
+                        http://localhost:8098/document/collection/test
+                        ```
+
+                        Collection Resources:
+
+                        ```bash
+                        .../{document_key}
+                        .../schema
+                        .../query
+                        ```
+
+                    </script>
+                </section>
+
+                <section>
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Documents
+
+                            Build a JSON document
+
+                            
+                            ```json
+                            {
+                              "name": "Casey", 
+                              "metric": 9000
+                            }
+                            ```
+
+                            Choose a key
+
+                            ```bash
+                            casey
+                            ```
+
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Documents
+
+                            Put the document in the collection
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/casey" -d \
+                                '{"name": "Casey", "metric": 9000}'
+
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('load_single_doc.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Documents
+
+                            Without an explicit schema, this results in an inferred schema
+
+
+                            ```json
+                                [
+                                  {
+                                    "name": "name", 
+                                    "type": "string"
+                                  },
+                                  {
+                                    "name": "metric", 
+                                    "type": "number"
+                                  }
+                                ]
+                            ```
+
+                            <a href="http://localhost:8098/document/collection/demo_collection/schema" target="_blank">click to view actual inferred schema</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Documents
+
+                            Load a few more documents into the collection so they can be queried
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/drew" -d \
+                                '{"name": "Drew", "metric": 1}'
+
+                            curl -v -XPUT -H 'Content-Type: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/dan" -d \
+                                '{"name": "Dan", "metric": 2}'
+
+                            curl -v -XPUT -H 'Content-Type: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/felix" -d \
+                                '{"name": "Felix", "metric": 3}'
+
+                            ```
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Documents
+
+                            Load even more documents into the collection for more compelling reuslts
+
+                            ```bash
+                            curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Petunia -d "{\"name\": \"Petunia\", \"metric\": 31}"
+
+                            curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Max -d "{\"name\": \"Max\", \"metric\": 2}"
+
+                            curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Carrie -d "{\"name\": \"Carrie\", \"metric\": 28}"
+
+                            curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Wilt -d "{\"name\": \"Wilt\", \"metric\": 28}"
+
+                            curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Roberta -d "{\"name\": \"Roberta\", \"metric\": 2}"
+
+                            curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Rowena -d "{\"name\": \"Rowena\", \"metric\": 2}"
+
+                            curl -v -H"content-type: application/json" -XPUT http://127.0.0.1:8098/document/collection/demo_collection/Robert -d "{\"name\": \"Robert\", \"metric\": 40}"
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('load_all_docs.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+                </section>
+
+                <section>
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (One)
+
+                            Find one document with `name` equal to "Drew"
+
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/one" -d \
+                                '{"name": "Drew"}' \
+                                | python -mjson.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_one.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (One)
+
+                            Find one document with `name` that matches a regular expression
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/one" -d \
+                                '{"name": {"$regex": "/C.*/"}}' \
+                                | python -mjson.tool
+                            ```
+
+                            This is an example of an `operator`, `{"$regex": "/C.*/"}` is a query for any one document with a name that starts with "C"
+
+                            <a href="#" onclick="copyToClipboard('query_one_regex.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (All)
+
+                            Find all documents with `name` that matches a regular expression
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/all" -d \
+                                '{"name": {"$regex": "/D.*/"}}' \
+                                | python -mjson.tool
+                            ```
+
+                            Here, `{"$regex": "/D.*/"}}` is a query for all documents with a name that starts with "D"
+
+                            <a href="#" onclick="copyToClipboard('query_all_regex.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (All)
+                            ##### Comparison Operators
+
+                            Find all documents with `metric` less than or equal to 5
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/all" -d \
+                                '{"metric": {"$lte": 5}}' \
+                                | python -mjson.tool
+                            ```
+
+
+                            <a href="#" onclick="copyToClipboard('query_all_lte.sh'); return false;">View in Action</a>
+
+                            Find all documents with `metric` greater than 2
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/all" -d \
+                                '{"metric": {"$gt": 2}}' \
+                                | python -mjson.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_gt.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (All)
+                            ##### Boolean Operators
+
+                            Find all documents with `name` that begins with "D" or "F"
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/all" -d \
+                                '{"$or": [{"name": {"$regex": "/D.*/"}},{"name": {"$regex": "/F.*/"}}]}' \
+                                | python -mjson.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_or.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (All)
+                            ##### Pagination
+
+                            Use the `$per_page` parameter to specify how many documents to return in a page of results
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/all" -d \
+                                '{"name": {"$regex": "/.*/"}, "$per_page": 1}' \
+                                | python -mjson.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_page_1.sh'); return false;">View in Action</a>
+
+                            Use the `$page` parameter to specify which result page to show
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/all" -d \
+                                '{"name": {"$regex": "/.*/"}, "$per_page": 1, "$page": 2}' \
+                                | python -mjson.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_page_2.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (All)
+                            ##### Sorting
+
+                            Use the `$sort` parameter, a field name, and a -1 value to return the results in descending order based on the value of that field
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/all" -d \
+                                '{"name": {"$regex": "/.*/"}, "$sort": {"metric": -1}}' \
+                                | python -mjson.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_sort_desc.sh'); return false;">View in Action</a>
+
+                            Change the value to 1 to return the results in ascending order
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/demo_collection/query/all" -d \
+                                '{"name": {"$regex": "/.*/"}, "$sort": {"metric": 1}}' \
+                                | python -mjson.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_sort_asc.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (All)
+                            ##### Group Records
+
+                            Group by distinct field value
+
+                            ```bash
+                            curl -v -H"content-type: application/json" -H"accept: application/json" \
+                                -XPUT http://127.0.0.1:8098/document/collection/demo_collection/query/all \
+                                -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$group\": [{\"field\": \"metric\", \"limit\": 10, \"start\": 1}]}" \
+                                | python -m json.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_group_field.sh'); return false;">View in Action</a>
+
+                            Group by field queries
+
+                            ```bash
+                            curl -v -H"content-type: application/json" -XPUT \
+                                http://127.0.0.1:8098/document/collection/demo_collection/query/all \
+                                -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$group\": [{\"queries\": [{\"name\": {\"\$regex\": \"/R.*/\"}}, {\"name\": {\"\$regex\": \"/.*a/\"}}], \"start\": 1}]}" \
+                                | python -m json.tool
+                            ```
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Getting Started
+                            #### Queries (All)
+                            ##### Categorize Records
+
+                            Categorize by distinct field value
+
+                            ```bash
+                            curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT \
+                                http://127.0.0.1:8098/document/collection/demo_collection/query/all -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$per_page\": 0, \"\$categorize\": [{\"field\": \"metric\"}]}" | python -m json.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_categorize_field.sh'); return false;">View in Action</a>
+
+                            Categorize by field queries
+
+                            ```bash
+                            curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT \
+                                http://127.0.0.1:8098/document/collection/demo_collection/query/all \
+                                -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$per_page\": 0, \"\$categorize\": [{\"queries\": [{\"name\": {\"\$regex\": \"/R.*/\"}}, {\"name\": {\"\$regex\": \"/.*a/\"}}]}]}" \
+                                | python -m json.tool
+                            ```
+
+                            Categorize by range and increments
+
+                            ```bash
+                            curl -v -H"content-type: application/json" -H"accept: application/json" -XPUT \
+                                http://127.0.0.1:8098/document/collection/demo_collection/query/all \
+                                -d "{\"name\": {\"\$regex\": \"/.*/\"}, \"\$per_page\": 0, \"\$categorize\": [{\"range\": {\"field\": \"metric\", \"start\": 1, \"end\": 50, \"increment\": 10}}]}" \
+                                | python -m json.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('query_all_categorize_range.sh'); return false;">View in Action</a>
+
+                        </script>
+                    </section>
+
+                </section>
+
+                <section>
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas
+
+                            Schema inferral is great for learning the endpoints and developing simple proofs of concept, but for real world applications there is a better way to manage document indexing.
+
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas
+
+                            Riak Json provides access to the following schema endpoint:
+
+                            ```bash
+                            GET, PUT, DELETE
+                            http://localhost:8098/document/collection/blog/schema
+                            ```
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas: Design
+
+                            First, decide on the schema fields and types for your application
+
+                            A blog entry collection might look like this:
+
+                            ```json
+                            [
+                              {
+                                "name": "author", 
+                                "type": "string"
+                              },{
+                                "name": "post", 
+                                "type": "text"
+                              },{
+                                "name": "timestamp", 
+                                "type": "number"
+                              }
+                            ]
+                            ```
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas: Field Types
+
+                            All currently supported field types:
+
+                            * "text" -> A string with spaces
+                            * "string" -> A string with no spaces
+                            * "multi_string" -> Array of strings
+                            * "number" -> Integers or Floats
+                            ```
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas: Put
+
+                            Create the schema by executing a `PUT` on the `/schema` endpoint
+
+                            ```bash
+                            curl -v -XPUT -H 'Content-Type: application/json' -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/blog/schema" -d \
+                                '[{"name": "author", "type": "string"},{"name": "post", "type": "text"},{"name": "timestamp", "type": "number"}]'
+                            ```
+
+                            This same endpoint and method can be used to update a schema as well, however there are some caveats to keep in mind which will be discussed later
+
+                            <a href="#" onclick="copyToClipboard('schema_put.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas: Get
+
+                            Verify the schema was saved properly by performing a `GET` on schema
+
+                            ```bash
+                            curl -v -GET -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/blog/schema" \
+                                | python -mjson.tool
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('schema_get.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas: Delete
+
+                            A schema and the underlying indexes can be deleted as well if a collection should no longer be indexed
+
+                            ```bash
+                            curl -v -XDELETE -H 'Accept: application/json' \
+                                "http://localhost:8098/document/collection/blog/schema"
+                            ```
+
+                            <a href="#" onclick="copyToClipboard('schema_delete.sh'); return false;">View in Action</a>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas: Concerns
+
+                            <ul>
+                                <li><em>Index Size</em>: Riak replication + solr index data can become expensive</li>
+                                <li class="fragment"><em>Index Speed</em>: numbers < string < text</li>
+                                <li class="fragment"><em>Fields not in schema</em>: will not be indexed, and will not be queryable</li>
+                            </ul>
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas: Edge Cases and Questions
+
+                            <ul>
+                                <li><em>What happens when indexed fields aren’t in an uploaded document?</em> <p><strong class="fragment">Currently there is no schema enforcement, so nothing will happen. An optional "required" attribute may be added to schema fields in the future</strong></p></li>
+                                <li class="fragment"><em>Can pre-existing data be indexed?</em> <p><strong class="fragment">Yes, an existing bucket can be used as a collection. AAE will retro-actively index all of the data in that bucket but it is not deterministic (no status, time remaining, etc)</strong></p>
+                            </ul>
+
+                        </script>
+                    </section>
+
+                    <section data-markdown>
+                        <script type="text/template">
+                            ### Real World Applications
+                            #### Schemas: Edge Cases and Questions (Continued)
+
+                            <ul>
+                                <li><em>What are the caveats for Schema Update / Migration</em>?
+                                    <ul>
+                                        <li class="fragment">In the Riak 2.0 release, reindex functionality will be exposed by Yokozuna which Riak Json will use it</li>
+                                        <li class="fragment">Until that is released however, indexes will be removed and past data may not be queryable</li>
+                                        <li class="fragment">There are also currently undocumented manual ways to deal with removing stale indexes from old data so that AAE will reindex the data</li>
+                                    </ul>
+                                </li>
+                            </ul>
+
+                        </script>
+                    </section>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        # The End
+                        Questions?
+                    </script>
+                </section>
+            </div>
+
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+            function copyToClipboard (name) {
+                text = "cat " + name + "\n./" + name;
+                window.prompt ("Copy to clipboard: Cmd+C, Enter", text);
+            }
+
+        </script>
+
+    </body>
+</html>
