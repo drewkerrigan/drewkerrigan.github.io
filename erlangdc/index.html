@@ -255,8 +255,10 @@
                         For external testing (find your LAN ip with `ifconfig`):
 
                         ```
-                        iex --name server@10.128.146.57 --cookie chocolate-chip -S mix
+                        iex --name server@<your_ip> --cookie chocolate-chip -S mix
                         ```
+
+                        Full Code: [ex_messenger](https://github.com/drewkerrigan/ex_messenger)
                   </script>
                 </section>
 
@@ -724,10 +726,45 @@
                         For external testing (find your LAN ip with `ifconfig`):
 
                         ```
-                        mode=external node=client@10.128.146.57 make run
+                        mode=external node=client@<your_ip> make run
                         ```
 
                         Note: Mode and Node are 2 different env variables
+
+                        Full Code: [ex_messenger_client](https://github.com/drewkerrigan/ex_messenger_client)
+                    </script>
+                </section>
+
+                <section data-markdown>
+                    <script type="text/template">
+                        ### Distributed Demo
+
+                        On your laptop:
+
+                        ```
+                        git clone https://github.com/drewkerrigan/ex_messenger_client.git
+                        cd ex_messenger_client
+                        ```
+
+                        Run `ifconfig` to find your 10.X.X.X ip address
+
+                        ```
+                        mode=external node=client@10.X.X.X make run
+                        ```
+
+                        It will prompt you for the node of the server, enter `server@10.128.146.57`
+
+                        ```
+                        Server Name: server@10.128.146.57
+                        ```
+
+                        Then choose a nickname
+
+                        ```
+                        Nickname: <enter a nickname>
+                        ```
+
+                        Type `/help` for a list of commands
                     </script>
                 </section>
 
