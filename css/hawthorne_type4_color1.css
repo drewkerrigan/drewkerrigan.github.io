@@ -314,7 +314,7 @@ p a, li a, .thumbnail-caption a {
   -webkit-transition: color 0.2s ease-out;
   -moz-transition: color 0.2s ease-out;
   transition: color 0.2s ease-out;
-  border-bottom: 1px solid #b5b1b3;
+  border-bottom: none;
   padding-bottom: 1px;
 }
 
